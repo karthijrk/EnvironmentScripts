@@ -29,6 +29,9 @@ export CUS_BACKUP=$CUS_GIT_ROOT/backup
 export CUS_HDFS_ROOT=$CUS_GIT_ROOT/singlecluster-PHD
 #Baleriong
 export CUS_BAL_ROOT=$CUS_GIT_ROOT/balerion
+#llvm
+export CUS_LLVM_ROOT=$CUS_GIT_ROOT/llvm
+export CUS_LLVM_INSTALL=$CUS_GIT_ROOT/llvm-install
 #P4
 export CUS_P4USER=krajaraman
 export CUS_P4CLIENT=krajaraman-mac
@@ -190,8 +193,8 @@ function use {
 		cd $CUS_HAWQ_DEFAULT_REPO
 		source_build_env
 		source $CUS_GCC_ENV
-		export VERSIONER_PYTHON_VERSION=2.6
-		export PYTHONPATH=/Library/Python/2.6/site-packages:$PYTHONPATH
+		#export VERSIONER_PYTHON_VERSION=2.6
+		#export PYTHONPATH=/Library/Python/2.6/site-packages:$PYTHONPATH
 	;;
 	"hawqd" )
 		export PROMPT_COMMAND='echo -ne "\033]0;hawq\007"'
@@ -205,8 +208,8 @@ function use {
 		cd $CUS_HAWQ13_DEFAULT_REPO
 		source_build_env
 		source $CUS_GCC_ENV
-		export VERSIONER_PYTHON_VERSION=2.6
-		export PYTHONPATH=/Library/Python/2.6/site-packages:$PYTHONPATH
+		#export VERSIONER_PYTHON_VERSION=2.6
+		#export PYTHONPATH=/Library/Python/2.6/site-packages:$PYTHONPATH
 	;;
 	"hawq13" )
 		export PROMPT_COMMAND='echo -ne "\033]0;hawq13\007"'
@@ -244,6 +247,10 @@ function use {
 	  export PROMPT_COMMAND='echo -ne "\033]0;balerion\007"'
 		cd ${CUS_BAL_ROOT}
 	;;
+	"llvm" )
+		export PROMPT_COMMAND='echo -ne "\033]0;llvm\007"'
+		cd ${CUS_LLVM_ROOT}
+	;;
 	"gpos" )
 	  export PROMPT_COMMAND='echo -ne "\033]0;gpos\007"'
 		cd ${CUS_GPOS_REPO}
@@ -260,12 +267,15 @@ function use {
 	"aws" )
 		cd ${CUS_AWS_LOC}
 	;;
+	"hack" )
+		export PROMPT_COMMAND='echo -ne "\033]0;hack\007"'
+		cd /Users/krajaraman/work/antlr/hackathon
+	;;
 	* )
 		echo "unknown build - please update the use function in .bash_profile"
 	;;
 esac
 	enable_ccache
-
 }
 
 function source_build_env() {
@@ -422,6 +432,11 @@ function fcbal() {
 		rm -rf build
 }
 
+function fcllvm() {
+	use llvm
+	rm -rf build
+}
+
 function fcgpos() {
 	use gpos
 	rm -rf build
@@ -455,6 +470,29 @@ function ihawq13() {
 function ihawq() {
 	use hawq
 	hawq init cluster -a
+}
+
+enable_debug_flags()
+{
+	# configure flags to help debug
+	export CFLAGS="-fno-omit-frame-pointer -O0 -pthread -g -g3 $CFLAGS"
+	export CXXFLAGS="-g -g3 $CXXFLAGS"
+	export CONFIGURE_DEBUG_FLAGS="--enable-debug --enable-depend --enable-cassert"
+
+	# build DEBUG build for easier debug, by default it's RelWithDebInfo
+	export CMAKE_DEBUG_FLAGS="-D CMAKE_BUILD_TYPE=DEBUG"
+
+	# build DEBUG for stash (make devel)
+	export BLD_TYPE=debug
+}
+
+clear_flags()
+{
+	unset CFLAGS
+	unset CXXFLAGS
+	unset CONFIGURE_DEBUG_FLAGS
+	unset CMAKE_DEBUG_FLAGS
+	unset BLD_TYPE
 }
 
 function bgpdb() {
@@ -505,10 +543,13 @@ function rbgpdb64() {
 	use gpdb64
 	gpstop -a
 	clean
+	enable_debug_flags
 	#./configure --enable-orca --enable-balerion --with-perl --with-python --with-libxml --prefix=/usr/local/gpdb --disable-gpfdist
 	#./configure --enable-orca --enable-testutils --enable-balerion --enable-debug --with-perl --with-python --with-libxml --prefix=/usr/local/gpdb --disable-gpfdist CPPFLAGS="-I/usr/local/include -I/usr/local/Cellar/llvm37/3.7.1/lib/llvm-3.7/include/ -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -g" CXXFLAGS="-I/usr/local/include -I/usr/local/Cellar/llvm37/3.7.1/lib/llvm-3.7/include/ -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -g"
 	#./configure --enable-orca --enable-testutils --enable-debug --with-perl --with-python --with-libxml --prefix=/usr/local/gpdb --disable-gpfdist CPPFLAGS="-I/usr/local/include -I/usr/local/Cellar/llvm37/3.7.1/lib/llvm-3.7/include/ -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -g" CXXFLAGS="-I/usr/local/include -I/usr/local/Cellar/llvm37/3.7.1/lib/llvm-3.7/include/ -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -g"
 	./configure  --enable-debug --enable-orca --enable-testutils --enable-codegen --enable-cassert --enable-debug --with-perl --with-python --with-libxml --prefix=/usr/local/gpdb --disable-gpfdist --with-codegen-prefix="/usr/local/Cellar/llvm37/3.7.1/lib/llvm-3.7" CPPFLAGS="-I/usr/local/include -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -g" CXXFLAGS="-I/usr/local/include -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -g"
+  #./configure  --enable-debug --enable-orca --enable-testutils --enable-codegen --enable-debug --with-perl --with-python --with-libxml --prefix=/usr/local/gpdb --disable-gpfdist --with-codegen-prefix="/usr/local/Cellar/llvm37/3.7.1/lib/llvm-3.7" CPPFLAGS="-I/usr/local/include -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -g" CXXFLAGS="-I/usr/local/include -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -g"
+
 	bgpdb64
 }
 
@@ -548,6 +589,17 @@ function rbhawq() {
 	bhawq
 }
 
+function rbhawq-oss() {
+	hawq stop cluster -a
+	clean
+	rm -rf $CUS_HAWQ_DEFAULT_REPO/ext/*
+	cd ./apache-hawq
+	make distclean
+	make clean
+	./configure --prefix=/usr/local/hawq --enable-orca --with-python --with-perl --enable-debug --enable-depend --enable-cassert
+	bhawq
+}
+
 function rbbal() {
 	use bal
 	fcbal
@@ -555,6 +607,15 @@ function rbbal() {
 	cd ./build
 	#cmake -D CMAKE_PREFIX_PATH=/usr/local/opt/llvm37/lib/llvm-3.7 -D CMAKE_BUILD_TYPE=Debug -D CMAKE_CXX_COMPILER=clang++ -D CMAKE_TOOLCHAIN_FILE=../i386.toolchain.cmake ../
 	cmake -D CMAKE_PREFIX_PATH=/usr/local/opt/llvm37/lib/llvm-3.7 -D CMAKE_BUILD_TYPE=Debug -D CMAKE_CXX_COMPILER=clang++ ../
+	make -j8
+}
+
+function rbllvm() {
+	use llvm
+	fcllvm
+	mkdir build
+	cd ./build
+	cmake -DCMAKE_INSTALL_PREFIX=$CUS_LLVM_INSTALL -DCMAKE_BUILD_TYPE=Release -DLLVM_LIBDIR_SUFFIX=64 -DLLVM_BUILD_TOOLS=ON -DLLVM_BUILD_EXAMPLES=ON ../
 	make -j8
 }
 
@@ -615,7 +676,7 @@ function rborca64() {
 	cd ./build
 	#cmake -D CMAKE_BUILD_TYPE=Debug -D CMAKE_CXX_COMPILER=clang++ -D CMAKE_TOOLCHAIN_FILE=../cmake/i386.toolchain.cmake -D XERCES_INCLUDE_DIR=/opt/gp_xerces_32/include -D XERCES_LIBRARY=/opt/gp_xerces_32/lib/libxerces-c.dylib ../
 	#cmake -D CMAKE_BUILD_TYPE=Debug -D CMAKE_CXX_COMPILER=clang++ -D XERCES_INCLUDE_DIR=/opt/gp_xerces/include -D XERCES_LIBRARY=/opt/gp_xerces/lib/libxerces-c.dylib ../
-	cmake -D CMAKE_CXX_COMPILER=clang++ -D XERCES_INCLUDE_DIR=/opt/gp_xerces/include -D XERCES_LIBRARY=/opt/gp_xerces/lib/libxerces-c.dylib ../
+	cmake -D CMAKE_BUILD_TYPE=Debug -D CMAKE_CXX_COMPILER=clang++ -D XERCES_INCLUDE_DIR=/opt/gp_xerces/include -D XERCES_LIBRARY=/opt/gp_xerces/lib/libxerces-c.dylib ../
 	make -j8
 }
 
@@ -759,6 +820,37 @@ function codegen_pvm() {
 	source ~/gpdb_env.sh
 	use GPDB-Main
 	cd /data/caragg/profiling/
+}
+
+function mv-grammar() {
+	rm -rf /Users/krajaraman/work/antlr/hackathon/cgrammar.tokens
+	rm -rf /Users/krajaraman/work/antlr/hackathon/cgrammarParser.cc
+	rm -rf /Users/krajaraman/work/antlr/hackathon/cgrammarParser.h
+	rm -rf /Users/krajaraman/work/antlr/hackathon/cgrammarLexer.cc
+	rm -rf /Users/krajaraman/work/antlr/hackathon/cgrammarLexer.h
+	rm -rf /Users/krajaraman/work/antlr/hackathon/cgrammarParser.c
+	cp -rf /Users/krajaraman/work/antlr/hackathon/output/cgrammar.tokens /Users/krajaraman/work/antlr/hackathon
+	cp -rf /Users/krajaraman/work/antlr/hackathon/output/cgrammarParser.h /Users/krajaraman/work/antlr/hackathon
+	cp -rf /Users/krajaraman/work/antlr/hackathon/output/cgrammarParser.c /Users/krajaraman/work/antlr/hackathon
+	cp -rf /Users/krajaraman/work/antlr/hackathon/output/cgrammarLexer.h /Users/krajaraman/work/antlr/hackathon
+	cp -rf /Users/krajaraman/work/antlr/hackathon/output/cgrammarLexer.c /Users/krajaraman/work/antlr/hackathon
+	mv /Users/krajaraman/work/antlr/hackathon/cgrammarLexer.c /Users/krajaraman/work/antlr/hackathon/cgrammarLexer.cc
+	mv /Users/krajaraman/work/antlr/hackathon/cgrammarParser.c /Users/krajaraman/work/antlr/hackathon/cgrammarParser.cc
+}
+
+function rbhack() {
+	use hack
+	rm -rf ./build
+	mkdir build
+	cd ./build
+	cmake -D CMAKE_BUILD_TYPE=Debug -D CMAKE_TOOLCHAIN_FILE=../cmake/i386.toolchain.cmake ../
+	bhack
+}
+
+function bhack() {
+	use hack
+	cd ./build
+	make
 }
 
 #if [ -e $GPHOME/greenplum_path.sh ]; then
