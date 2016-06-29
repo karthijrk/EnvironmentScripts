@@ -486,6 +486,20 @@ enable_debug_flags()
 	export BLD_TYPE=debug
 }
 
+disable_debug_flags()
+{
+	# configure flags to help debug
+	export CFLAGS=
+	export CXXFLAGS=
+	export CONFIGURE_DEBUG_FLAGS=
+
+	# build DEBUG build for easier debug, by default it's RelWithDebInfo
+	export CMAKE_DEBUG_FLAGS=
+
+	# build DEBUG for stash (make devel)
+	export BLD_TYPE=
+}
+
 clear_flags()
 {
 	unset CFLAGS
@@ -544,11 +558,13 @@ function rbgpdb64() {
 	gpstop -a
 	clean
 	enable_debug_flags
-	#./configure --enable-orca --enable-balerion --with-perl --with-python --with-libxml --prefix=/usr/local/gpdb --disable-gpfdist
-	#./configure --enable-orca --enable-testutils --enable-balerion --enable-debug --with-perl --with-python --with-libxml --prefix=/usr/local/gpdb --disable-gpfdist CPPFLAGS="-I/usr/local/include -I/usr/local/Cellar/llvm37/3.7.1/lib/llvm-3.7/include/ -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -g" CXXFLAGS="-I/usr/local/include -I/usr/local/Cellar/llvm37/3.7.1/lib/llvm-3.7/include/ -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -g"
-	#./configure --enable-orca --enable-testutils --enable-debug --with-perl --with-python --with-libxml --prefix=/usr/local/gpdb --disable-gpfdist CPPFLAGS="-I/usr/local/include -I/usr/local/Cellar/llvm37/3.7.1/lib/llvm-3.7/include/ -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -g" CXXFLAGS="-I/usr/local/include -I/usr/local/Cellar/llvm37/3.7.1/lib/llvm-3.7/include/ -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -g"
-	./configure  --enable-debug --enable-orca --enable-testutils --enable-codegen --enable-cassert --enable-debug --with-perl --with-python --with-libxml --prefix=/usr/local/gpdb --disable-gpfdist --with-codegen-prefix="/usr/local/Cellar/llvm37/3.7.1/lib/llvm-3.7" CPPFLAGS="-I/usr/local/include -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -g" CXXFLAGS="-I/usr/local/include -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -g"
-  #./configure  --enable-debug --enable-orca --enable-testutils --enable-codegen --enable-debug --with-perl --with-python --with-libxml --prefix=/usr/local/gpdb --disable-gpfdist --with-codegen-prefix="/usr/local/Cellar/llvm37/3.7.1/lib/llvm-3.7" CPPFLAGS="-I/usr/local/include -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -g" CXXFLAGS="-I/usr/local/include -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -g"
+	#Debug
+	#./configure  --enable-orca --enable-testutils --enable-codegen --enable-cassert --enable-debug --with-perl --with-python --with-libxml --prefix=/usr/local/gpdb --disable-gpfdist --with-codegen-prefix="/usr/local/Cellar/llvm37/3.7.1/lib/llvm-3.7" CPPFLAGS="-I/usr/local/include -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -g" CXXFLAGS="-I/usr/local/include -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -g"
+	# Release
+	./configure  --enable-orca --enable-testutils --enable-codegen --with-perl --with-python --with-libxml --prefix=/usr/local/gpdb --disable-gpfdist --with-codegen-prefix="/usr/local/Cellar/llvm37/3.7.1/lib/llvm-3.7" CPPFLAGS="-I/usr/local/include -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS " CXXFLAGS="-I/usr/local/include -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS"
+	# Custom llvm
+	#./configure  --enable-orca --enable-testutils --enable-codegen --enable-cassert --enable-debug --with-perl --with-python --with-libxml --prefix=/usr/local/gpdb --disable-gpfdist --with-codegen-prefix="/Users/krajaraman/gitdev/llvm-install" CPPFLAGS="-I/usr/local/include -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -g" CXXFLAGS="-I/usr/local/include -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -g"
+
 
 	bgpdb64
 }
@@ -558,7 +574,9 @@ function rbgpdb64_rel() {
 	use gpdb64
 	gpstop -a
 	clean
-	./configure --enable-mapreduce --enable-orca --enable-testutils --enable-codegen --with-perl --with-python --with-libxml --prefix=/usr/local/gpdb --disable-gpfdist --with-codegen-prefix="/usr/local/Cellar/llvm37/3.7.1/lib/llvm-3.7" CPPFLAGS="-I/usr/local/include -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS" CXXFLAGS="-I/usr/local/include -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS"
+	disable_debug_flags
+	# Release
+	./configure  --enable-orca --enable-testutils --enable-codegen --with-perl --with-python --with-libxml --prefix=/usr/local/gpdb --disable-gpfdist --with-codegen-prefix="/usr/local/Cellar/llvm37/3.7.1/lib/llvm-3.7" CPPFLAGS="-I/usr/local/include -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS " CXXFLAGS="-I/usr/local/include -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS"
 	bgpdb64
 }
 
@@ -566,7 +584,7 @@ function rbgpdb64_nocg() {
 	use gpdb64
 	gpstop -a
 	clean
-	./configure --enable-mapreduce --enable-orca --enable-testutils --enable-debug --with-perl --with-python --with-libxml --prefix=/usr/local/gpdb --disable-gpfdist --with-codegen-prefix="/usr/local/Cellar/llvm37/3.7.1/lib/llvm-3.7" CPPFLAGS="-I/usr/local/include -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -g" CXXFLAGS="-I/usr/local/include -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -g"
+	./configure --enable-mapreduce --enable-orca --enable-testutils --enable-debug --with-perl --with-python --with-libxml --prefix=/usr/local/gpdb --disable-gpfdist CPPFLAGS="-I/usr/local/include -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -g" CXXFLAGS="-I/usr/local/include -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -g"
 	bgpdb64
 
 }
@@ -606,7 +624,8 @@ function rbbal() {
 	mkdir build
 	cd ./build
 	#cmake -D CMAKE_PREFIX_PATH=/usr/local/opt/llvm37/lib/llvm-3.7 -D CMAKE_BUILD_TYPE=Debug -D CMAKE_CXX_COMPILER=clang++ -D CMAKE_TOOLCHAIN_FILE=../i386.toolchain.cmake ../
-	cmake -D CMAKE_PREFIX_PATH=/usr/local/opt/llvm37/lib/llvm-3.7 -D CMAKE_BUILD_TYPE=Debug -D CMAKE_CXX_COMPILER=clang++ ../
+	#cmake -D build_examples=ON -D CMAKE_PREFIX_PATH=/usr/local/opt/llvm37/lib/llvm-3.7 -D CMAKE_BUILD_TYPE=Debug -D CMAKE_CXX_COMPILER=clang++ ../
+	cmake -D build_examples=ON -D CMAKE_PREFIX_PATH=/Users/krajaraman/gitdev/llvm-install -D CMAKE_BUILD_TYPE=Debug -D CMAKE_CXX_COMPILER=clang++ ../
 	make -j8
 }
 
@@ -644,19 +663,30 @@ function rbgpos64() {
 	fcgpos
 	mkdir build
 	cd ./build
+	enable_debug_flags
 	#cmake -D CMAKE_BUILD_TYPE=Debug -D CMAKE_CXX_COMPILER=clang++ -D CMAKE_TOOLCHAIN_FILE=../i386.toolchain.cmake ../
 	cmake -D CMAKE_BUILD_TYPE=Debug -D CMAKE_CXX_COMPILER=clang++ ../
-	#cmake -D CMAKE_CXX_COMPILER=clang++ ../
+	make -j8
+}
+
+function rbgpos64_rel() {
+	use gpos
+	fcgpos
+	mkdir build
+	cd ./build
+	disable_debug_flags
+	#cmake -D CMAKE_BUILD_TYPE=Debug -D CMAKE_CXX_COMPILER=clang++ -D CMAKE_TOOLCHAIN_FILE=../i386.toolchain.cmake ../
+	cmake -D CMAKE_CXX_COMPILER=clang++ ../
 	make -j8
 }
 
 function install_gpos() {
-	make install
+	sudo make install
 }
 
 function uninstall_gpos() {
 	sudo rm -rf /usr/local/include/gpos
-	sudo rm -rf /usr/local/lib/libgpos.so*
+	sudo rm -rf /usr/local/lib/libgpos*
 }
 
 function rborca() {
@@ -674,20 +704,54 @@ function rborca64() {
 	rm -rf build
 	mkdir build
 	cd ./build
+	enable_debug_flags
 	#cmake -D CMAKE_BUILD_TYPE=Debug -D CMAKE_CXX_COMPILER=clang++ -D CMAKE_TOOLCHAIN_FILE=../cmake/i386.toolchain.cmake -D XERCES_INCLUDE_DIR=/opt/gp_xerces_32/include -D XERCES_LIBRARY=/opt/gp_xerces_32/lib/libxerces-c.dylib ../
 	#cmake -D CMAKE_BUILD_TYPE=Debug -D CMAKE_CXX_COMPILER=clang++ -D XERCES_INCLUDE_DIR=/opt/gp_xerces/include -D XERCES_LIBRARY=/opt/gp_xerces/lib/libxerces-c.dylib ../
 	cmake -D CMAKE_BUILD_TYPE=Debug -D CMAKE_CXX_COMPILER=clang++ -D XERCES_INCLUDE_DIR=/opt/gp_xerces/include -D XERCES_LIBRARY=/opt/gp_xerces/lib/libxerces-c.dylib ../
 	make -j8
 }
 
+function rborca64_rel() {
+	use orca
+	rm -rf build
+	mkdir build
+	cd ./build
+	disable_debug_flags
+	cmake -D CMAKE_CXX_COMPILER=clang++ -D XERCES_INCLUDE_DIR=/opt/gp_xerces/include -D XERCES_LIBRARY=/opt/gp_xerces/lib/libxerces-c.dylib ../
+	make -j8
+}
+
+# This command has to run with 'sudo' in order to
+# be able to copy binaries to /opt/repo/emc/optimizer.
+# Limit to 'debug' build only, since most time
+# publish_local is for debugging purpose.
+publish_local_orca_for_gpdb4()
+{
+	use orca
+
+	# work around warning of "couldn't understand kern.osversion `14.5.0'"
+	export MACOSX_DEPLOYMENT_TARGET=10.9
+	#source /opt/gcc_env-osx106.sh
+
+	time build ARCH_BIT=GPOS_32BIT BLD_TYPE=debug
+	time build ARCH_BIT=GPOS_32BIT BLD_TYPE=opt
+
+	# publish both opt and debug build
+	sudo make ARCH_BIT=GPOS_32BIT BLD_TYPE=opt publish_local
+}
+
+build() {
+	 make "$@"
+}
+
 function publish_orca32()
 {
- make ARCH_BIT=GPOS_32BIT BLD_TYPE=opt && make ARCH_BIT=GPOS_32BIT && make ARCH_BIT=GPOS_32BIT BLD_TYPE=opt publish_local
+ sudo make ARCH_BIT=GPOS_32BIT BLD_TYPE=opt && make ARCH_BIT=GPOS_32BIT && make ARCH_BIT=GPOS_32BIT BLD_TYPE=opt publish_local
 }
 
 function publish_orca64()
 {
- make ARCH_BIT=GPOS_64BIT BLD_TYPE=opt && make ARCH_BIT=GPOS_64BIT && make ARCH_BIT=GPOS_64BIT BLD_TYPE=opt publish_local
+ sudo make ARCH_BIT=GPOS_64BIT BLD_TYPE=opt && make ARCH_BIT=GPOS_64BIT && make ARCH_BIT=GPOS_64BIT BLD_TYPE=opt publish_local
 }
 
 function install_orca() {
@@ -698,9 +762,9 @@ function uninstall_orca() {
 	sudo rm -rf /usr/local/include/naucrates
 	sudo rm -rf /usr/local/include/gpdbcost
 	sudo rm -rf /usr/local/include/gpopt
-	sudo rm -rf /usr/local/lib/libnaucrates.so*
-	sudo rm -rf /usr/local/lib/libgpdbcost.so*
-	sudo rm -rf /usr/local/lib/libgpopt.so*
+	sudo rm -rf /usr/local/lib/libnaucrates*
+	sudo rm -rf /usr/local/lib/libgpdbcost*
+	sudo rm -rf /usr/local/lib/libgpopt*
 }
 
 function mv_xerces_64() {
