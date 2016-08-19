@@ -156,12 +156,14 @@ function use {
 	case "$1" in
 	"gpdb" )
 		export PROMPT_COMMAND='echo -ne "\033]0;gpdb\007"'
+		tmux rename-window -t${TMUX_PANE} "gpdb"
 		gpdb_common
 		source_build_env
 		source $CUS_GCC_ENV
 	;;
 	"gpdb4" )
 		export PROMPT_COMMAND='echo -ne "\033]0;gpdb4\007"'
+		tmux rename-window -t${TMUX_PANE} "gpdb4"
 		g4S_env
 		gpdb_common
 		source_build_env
@@ -169,6 +171,7 @@ function use {
 	;;
 	"gpdb43" )
 		export PROMPT_COMMAND='echo -ne "\033]0;gpdb43\007"'
+		tmux rename-window -t${TMUX_PANE} "gpdb43"
 		g43S_env
 		gpdb_common
 		source_build_env
@@ -176,6 +179,7 @@ function use {
 	;;
 	"gpdb64" )
 		export PROMPT_COMMAND='echo -ne "\033]0;gpdb64\007"'
+		tmux rename-window -t${TMUX_PANE} "gpdb64"
 		g64_env
 		gpdb_common
 		export MACOSX_DEPLOYMENT_TARGET=10.10
@@ -184,6 +188,7 @@ function use {
 	;;
 	"hawq" )
 		export PROMPT_COMMAND='echo -ne "\033]0;hawq\007"'
+		tmux rename-window -t${TMUX_PANE} "hawq"
 		export JAVA_HOME=$CUS_JAVA8_HOME
 		export GPHOME=$CUS_HAWQ_DEFAULT_REPO/hawq-db-devel
 		export PGPORT=$CUS_HAWQ_PORT
@@ -198,6 +203,7 @@ function use {
 	;;
 	"hawqd" )
 		export PROMPT_COMMAND='echo -ne "\033]0;hawq\007"'
+		tmux rename-window -t${TMUX_PANE} "hawqd"
 		export JAVA_HOME=$CUS_JAVA8_HOME
 		export GPHOME=$CUS_HAWQ_DEFAULT_REPO/hawq-db-dist
 		export PGPORT=$CUS_HAWQ_PORT
@@ -213,6 +219,7 @@ function use {
 	;;
 	"hawq13" )
 		export PROMPT_COMMAND='echo -ne "\033]0;hawq13\007"'
+		tmux rename-window -t${TMUX_PANE} "hawq13"
 		export JAVA_HOME=$CUS_JAVA7_HOME
 		export GPHOME=$CUS_HAWQ13_DEFAULT_REPO/greenplum-db-devel
 		export PGPORT=$CUS_HAWQ13_PORT
@@ -229,6 +236,7 @@ function use {
 	;;
 	"hdfs" )
 		export PROMPT_COMMAND='echo -ne "\033]0;hdfs\007"'
+		tmux rename-window -t${TMUX_PANE} "hdfs"
 		export JAVA_HOME=$CUS_JAVA8_HOME
 		#export GPHOME=~/gitdev/hawq/hawq-db-devel
 		#export PGPORT="5450"
@@ -238,6 +246,7 @@ function use {
 	;;
 	"tinc" )
 	  export PROMPT_COMMAND='echo -ne "\033]0;tinc\007"'
+		tmux rename-window -t${TMUX_PANE} "tinc"
 		. ${P4HOME}/kraja_setup.sh
 		cd ${P4HOME}
 		source_build_env
@@ -245,22 +254,27 @@ function use {
 	;;
 	"bal" )
 	  export PROMPT_COMMAND='echo -ne "\033]0;balerion\007"'
+		tmux rename-window -t${TMUX_PANE} "balerion"
 		cd ${CUS_BAL_ROOT}
 	;;
 	"llvm" )
 		export PROMPT_COMMAND='echo -ne "\033]0;llvm\007"'
+		tmux rename-window -t${TMUX_PANE} "llvm"
 		cd ${CUS_LLVM_ROOT}
 	;;
 	"gpos" )
 	  export PROMPT_COMMAND='echo -ne "\033]0;gpos\007"'
+		tmux rename-window -t${TMUX_PANE} "gpos"
 		cd ${CUS_GPOS_REPO}
 	;;
 	"orca" )
 	  export PROMPT_COMMAND='echo -ne "\033]0;orca\007"'
+		tmux rename-window -t${TMUX_PANE} "orca"
 		cd ${CUS_ORCA_REPO}
 	;;
 	"postgres" )
 		export PROMPT_COMMAND='echo -ne "\033]0;postgres\007"'
+		tmux rename-window -t${TMUX_PANE} "postgres"
 		source $CUS_GCC_ENV
 		cd ${CUS_POSTGRES_REPO}
 	;;
@@ -269,6 +283,7 @@ function use {
 	;;
 	"hack" )
 		export PROMPT_COMMAND='echo -ne "\033]0;hack\007"'
+		tmux rename-window -t${TMUX_PANE} "hack"
 		cd /Users/krajaraman/work/antlr/hackathon
 	;;
 	* )
@@ -517,7 +532,7 @@ function bgpdb() {
 function bgpdb64() {
 	gpstop -a
 	make -j7
-	make install
+	make -j7 install
 }
 
 function bhawq13() {
@@ -535,6 +550,12 @@ function bbal() {
 }
 function bgpos() {
 	make
+}
+
+function rbpostgres() {
+	source $CUS_GCC_ENV
+	./configure
+	bpostgres
 }
 
 function bpostgres() {
@@ -561,7 +582,7 @@ function rbgpdb64() {
 	#Debug
 	#./configure  --enable-orca --enable-testutils --enable-codegen --enable-cassert --enable-debug --with-perl --with-python --with-libxml --prefix=/usr/local/gpdb --disable-gpfdist --with-codegen-prefix="/usr/local/Cellar/llvm37/3.7.1/lib/llvm-3.7" CPPFLAGS="-I/usr/local/include -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -g" CXXFLAGS="-I/usr/local/include -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -g"
 	# Release
-	./configure  --enable-orca --enable-testutils --enable-codegen --with-perl --with-python --with-libxml --prefix=/usr/local/gpdb --disable-gpfdist --with-codegen-prefix="/usr/local/Cellar/llvm37/3.7.1/lib/llvm-3.7" CPPFLAGS="-I/usr/local/include -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS " CXXFLAGS="-I/usr/local/include -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS"
+	./configure  --enable-orca --enable-testutils --enable-codegen --enable-cassert --enable-debug --with-perl --with-python --with-libxml --prefix=/usr/local/gpdb --disable-gpfdist --with-codegen-prefix="/usr/local/Cellar/llvm37/3.7.1/lib/llvm-3.7" CPPFLAGS="-I/usr/local/include -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS " CXXFLAGS="-I/usr/local/include -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS"
 	# Custom llvm
 	#./configure  --enable-orca --enable-testutils --enable-codegen --enable-cassert --enable-debug --with-perl --with-python --with-libxml --prefix=/usr/local/gpdb --disable-gpfdist --with-codegen-prefix="/Users/krajaraman/gitdev/llvm-install" CPPFLAGS="-I/usr/local/include -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -g" CXXFLAGS="-I/usr/local/include -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -g"
 
@@ -639,7 +660,7 @@ function rbllvm() {
 }
 
 function install_bal() {
-	sudo make install
+	sudo make -j8 install
 }
 
 function uninstall_bal() {
@@ -681,7 +702,7 @@ function rbgpos64_rel() {
 }
 
 function install_gpos() {
-	sudo make install
+	sudo make -j8 install
 }
 
 function uninstall_gpos() {
@@ -694,7 +715,7 @@ function rborca() {
 	rm -rf build
 	mkdir build
 	cd ./build
-	cmake -D CMAKE_BUILD_TYPE=Debug -D CMAKE_CXX_COMPILER=clang++ -D CMAKE_TOOLCHAIN_FILE=../cmake/i386.toolchain.cmake -D XERCES_INCLUDE_DIR=/opt/gp_xerces_32/include -D XERCES_LIBRARY=/opt/gp_xerces_32/lib/libxerces-c.dylib ../
+	cmake -D CMAKE_CXX_COMPILER=clang++ -D CMAKE_TOOLCHAIN_FILE=../cmake/i386.toolchain.cmake -D XERCES_INCLUDE_DIR=/opt/gp_xerces_32/include -D XERCES_LIBRARY=/opt/gp_xerces_32/lib/libxerces-c.dylib ../
 	#cmake -D CMAKE_BUILD_TYPE=Debug -D CMAKE_CXX_COMPILER=clang++ -D CMAKE_TOOLCHAIN_FILE=../cmake/x86_64.toolchain.cmake -D XERCES_INCLUDE_DIR=/opt/gp_xerces/include -D XERCES_LIBRARY=/opt/gp_xerces/lib/libxerces-c.dylib ../
 	make -j8
 }
@@ -755,7 +776,7 @@ function publish_orca64()
 }
 
 function install_orca() {
-	sudo make install
+	sudo make -j8 install
 }
 
 function uninstall_orca() {
@@ -783,7 +804,7 @@ function bdhawq() {
 }
 
 function install_postgres() {
-	make install
+	make -j8 install
 	rm -rf /usr/local/pgsql/data
 	mkdir /usr/local/pgsql/data
 }
@@ -843,6 +864,7 @@ function pvm() {
 
 function cobj() {
 	find . -name "*.o" -type f -exec rm -rf {} \;
+	find . -name "*.dylib" -type f -exec rm -rf {} \;
 }
 
 function cvm() {
