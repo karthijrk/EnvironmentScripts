@@ -42,15 +42,9 @@ function defualt_env() {
 
 function use {
 	case "$1" in
-	"th" )
-		export PROMPT_COMMAND='echo -ne "\033]0;thunderhead\007"'
-		tmux rename-window -t${TMUX_PANE} "thunderhead"
-		defualt_env
-		cd $CUS_GIT_ROOT/thunderhead
-	;;
-	"es" )
-		export PROMPT_COMMAND='echo -ne "\033]0;EnvironmentScripts\007"'
-		tmux rename-window -t${TMUX_PANE} "EnvironmentScripts"
+	"env" )
+		export PROMPT_COMMAND='echo -ne "\033]0;Env\007"'
+		tmux rename-window -t${TMUX_PANE} "Env"
 		defualt_env
 		cd $CUS_GIT_ROOT/EnvironmentScripts
 	;;
